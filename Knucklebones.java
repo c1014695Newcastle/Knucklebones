@@ -117,6 +117,7 @@ public class Knucklebones {
             });
         }
         buttons.setVisible(true);
+        buttons.updateUI();
     }
 
     private void newRoll(int player){
