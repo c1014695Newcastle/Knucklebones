@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Random;
 
 public class Knucklebones {
@@ -27,6 +26,7 @@ public class Knucklebones {
     JPanel container = new JPanel();
     JButton[][] playerOneButtons = new JButton[3][3];
     JButton[][] playerTwoButtons = new JButton[3][3];
+    JLabel title = new JLabel();
 
     
 
@@ -52,8 +52,7 @@ public class Knucklebones {
         title.setVisible(true);
         fr.add(title,BorderLayout.NORTH);
 
-
-        scores.setLayout(new GridLayout(1,2));
+        scores.setLayout(new GridLayout(2,2));
         scores.setBackground( new Color(25,25,25));
         scores.setBackground(new Color(252,240,213));
         scores.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1),BorderFactory.createEmptyBorder(5,5,5,5)));
@@ -80,16 +79,10 @@ public class Knucklebones {
         for (int i = 0; i < 3; i++){
             for (int j = 0; j< 3; j++) {
                 playerOneButtons[i][j] = new JButton();
-                playerOneButtons[i][j].setForeground(Color.black);
-                playerOneButtons[i][j].setFont(new Font("Noto Mono", Font.BOLD, 50));
-                if (playerOneTurn) {
-                    playerOneButtons[i][j].setBackground(new Color(177, 13, 17));
-                } else {
-                    playerOneButtons[i][j].setBackground(new Color(192, 192, 192));
-                }
-                playerOneButtons[i][j].setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), BorderFactory.createBevelBorder(1)));
+                styleButton(playerOneButtons[i][j], playerOneTurn);
                 buttons.add(playerOneButtons[i][j], BorderLayout.NORTH);
                 buttons.updateUI();
+                addMouseControl(playerOneButtons[i][j], 1);
                 playerOneButtons[i][j].addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -98,21 +91,14 @@ public class Knucklebones {
                                 if (e.getSource() == playerOneButtons[i][j]) {
                                     if (playerOneButtons[i][j].getText().equals("")) {
                                         playerOneButtons[i][j].setText(Integer.toString(playerOneRoll));
-                                        playerOneTurn = false;
-                                        playerOneFinalScore += checkRules(i, j,1, playerOneScore);
+                                        playerOneTurn = !playerOneTurn;
+                                        playerOneFinalScore += checkRules(i,j,playerOneScore,playerTwoScore,playerOneButtons,playerTwoButtons);
                                         newRoll(2);
                                         diceRoll.setText(Integer.toString(playerTwoRoll));
                                         //Update JLabels
                                         updateColumnScores();
                                         updateScoreBoard();
-                                        for (int x = 0; x < 3; x++) {
-                                            for (int y = 0; y < 3; y++) {
-                                                playerOneButtons[x][y].setEnabled(false);
-                                                playerOneButtons[x][y].setBackground(new Color(192, 192, 192));
-                                                playerTwoButtons[x][y].setEnabled(true);
-                                                playerTwoButtons[x][y].setBackground(new Color(177, 13, 17));
-                                            }
-                                        }
+                                        switchPlayers(playerOneButtons, playerTwoButtons);
                                     }
                                 }
                             }
@@ -153,16 +139,10 @@ public class Knucklebones {
         for (int i = 0; i < 3; i++){
             for (int j = 0; j<3; j++) {
                 playerTwoButtons[i][j] = new JButton();
-                playerTwoButtons[i][j].setForeground(Color.black);
-                playerTwoButtons[i][j].setFont(new Font("Noto Mono", Font.BOLD, 50));
-                if (!playerOneTurn) {
-                    playerTwoButtons[i][j].setBackground(new Color(177, 13, 17));
-                } else {
-                    playerTwoButtons[i][j].setBackground(new Color(192, 192, 192));
-                }
-                playerTwoButtons[i][j].setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), BorderFactory.createBevelBorder(1)));
+                styleButton(playerTwoButtons[i][j], !playerOneTurn);
                 buttons.add(playerTwoButtons[i][j], BorderLayout.NORTH);
                 buttons.updateUI();
+                addMouseControl(playerTwoButtons[i][j], 2);
                 playerTwoButtons[i][j].addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -171,21 +151,15 @@ public class Knucklebones {
                                 if (e.getSource() == playerTwoButtons[i][j]) {
                                     if (playerTwoButtons[i][j].getText().equals("")) {
                                         playerTwoButtons[i][j].setText(Integer.toString(playerTwoRoll));
-                                        playerOneTurn = true;
-                                        playerTwoFinalScore += checkRules(i,j,2, playerTwoScore);
+                                        playerOneTurn = !playerOneTurn;
+                                        playerTwoFinalScore += checkRules(i,j,playerTwoScore,playerOneScore,playerTwoButtons,playerOneButtons);
                                         newRoll(1);
                                         diceRoll.setText(Integer.toString(playerOneRoll));
                                         //Update JLabels
                                         updateColumnScores();
                                         updateScoreBoard();
-                                        for (int x = 0; x < 3; x++) {
-                                            for (int y = 0; y < 3; y++) {
-                                                playerTwoButtons[x][y].setEnabled(false);
-                                                playerTwoButtons[x][y].setBackground(new Color(192, 192, 192));
-                                                playerOneButtons[x][y].setEnabled(true);
-                                                playerOneButtons[x][y].setBackground(new Color(177, 13, 17));
-                                            }
-                                        }
+                                        switchPlayers(playerTwoButtons,playerOneButtons);
+                                        checkGameEnd(playerOneButtons);
                                     }
                                 }
                             }
@@ -295,57 +269,38 @@ public class Knucklebones {
         }
     }
 
-    public int checkRules(int x, int y, int player, int[] playerScore){
-        int points = 0;
+    public int checkRules(int x, int y, int[] playerScore, int[] opponentScore, JButton[][] playerButtons, JButton[][] opponentButtons){
+        int points = checkDuplicates(x, y, playerButtons, playerScore);
         //Check if any of the player's rolls are the same
         //check if any if the player's rolls match the opposite player's
-        if (player == 1) {
-            points = checkDuplicates(x, y, 1, playerScore);
-            for (int yCord = 0; yCord < 3; yCord++){
-                if (playerOneButtons[x][y].getText().equals(playerTwoButtons[x][yCord].getText())){
-                    playerTwoButtons[x][yCord].setText("");
-                    playerTwoScore[yCord] -= Integer.parseInt(playerOneButtons[x][y].getText());
-                    if ( playerTwoScore[yCord] <= 0){
-                        playerTwoScore[yCord] = 0;
-                    }
-                }
-            }
-        } else {
-            points = checkDuplicates(x, y, 2, playerScore);
-            for (int yCord = 0; yCord < 3; yCord++){
-                if (playerTwoButtons[x][y].getText().equals(playerOneButtons[x][yCord].getText())){
-                    playerOneButtons[x][yCord].setText("");
-                    playerOneScore[yCord] -= Integer.parseInt(playerOneButtons[x][y].getText());
-                    if ( playerOneScore[yCord] <= 0){
-                        playerOneScore[yCord] = 0;
-                    }
+
+        for (int yCord = 0; yCord < 3; yCord++){
+            if (playerButtons[x][y].getText().equals(opponentButtons[yCord][y].getText())){
+                opponentButtons[yCord][y].setText("");
+                opponentScore[yCord] -= Integer.parseInt(playerButtons[x][y].getText());
+                if ( opponentScore[yCord] <= 0){
+                    opponentScore[yCord] = 0;
                 }
             }
         }
         return points;
     }
 
-    private int checkDuplicates(int xCord, int yCord, int player, int[]playerScore){
+    private int checkDuplicates(int xCord, int yCord, JButton[][] playerButtons, int[]playerScore){
         //check if any of the player's dice in that column are equal
-        JButton[][] playerButtons;
-        if (player == 1){
-             playerButtons = playerOneButtons;
-        } else {
-            playerButtons = playerTwoButtons;
-        }
         for (int x = 0; x <3; x++){
             for (int y = 0; y<3; y++){
                 if (playerButtons[x][y].equals(playerButtons[xCord][yCord])){
-                    int count = 0;
+                    int count = 1;
                     for (int z = 0; z < 3; z++)
-                        if (playerButtons[x][z].getText().equals(playerButtons[x][y].getText()) && z != y){
+                        if (playerButtons[z][y].getText().equals(playerButtons[x][y].getText()) && z != x){
                             count++;
                         }
-                    if (count == 0){
+                    if (count == 1){
                         playerScore[y] += Integer.parseInt(playerButtons[x][y].getText());
                         return Integer.parseInt(playerButtons[x][y].getText());
                     } else {
-                        playerScore[y] += count * Integer.parseInt(playerButtons[x][y].getText()) * count;
+                        playerScore[y] += (count * Integer.parseInt(playerButtons[x][y].getText()) * count);
                         return (count * Integer.parseInt(playerButtons[x][y].getText()) * count);
                     }
                 }
@@ -365,5 +320,29 @@ public class Knucklebones {
 
     private void firstGo(){
         playerOneTurn = rn.nextInt(2) == 0;
+    }
+
+    private void checkGameEnd(JButton[][] buttons){
+        int count = 0;
+        for (int x = 0; x < 3; x++){
+            for (int y = 0; y < 3; y++){
+                if(!buttons[x][y].getText().equals("")){
+                    count++;
+                }
+            }
+        }
+        if (count == 9){
+            findWinner();
+        }
+    }
+
+    private void findWinner(){
+        if (playerOneFinalScore > playerTwoFinalScore){
+
+        } else if (playerOneFinalScore < playerTwoFinalScore){
+
+        } else {
+
+        }
     }
 }
