@@ -43,6 +43,14 @@ public class Knucklebones {
         fr.setLayout(new BorderLayout());
         fr.setVisible(true);
 
+        title.setText("KNUCKLEBONES");
+        title.setSize(500,50);
+        title.setFont((new Font("Noto Mono", Font.BOLD, 15)));
+        title.setBackground(Color.BLACK);
+        title.setForeground(new Color(177, 13, 17));
+        title.setLayout(new GridLayout(1,1));
+        title.setVisible(true);
+        fr.add(title,BorderLayout.NORTH);
 
 
         scores.setLayout(new GridLayout(1,2));
@@ -105,53 +113,6 @@ public class Knucklebones {
                                                 playerTwoButtons[x][y].setBackground(new Color(177, 13, 17));
                                             }
                                         }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-                playerOneButtons[i][j].addMouseListener(new java.awt.event.MouseListener() {
-
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-
-                    }
-
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-
-                    }
-
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-
-                    }
-
-                    @Override
-                    public void mouseEntered(MouseEvent e) {
-                        for (int i = 0; i < 3; i++) {
-                            for (int j = 0; j < 3; j++) {
-                                if (e.getSource() == playerOneButtons[i][j]) {
-                                    if (playerOneTurn) {
-                                        playerOneButtons[i][j].setBackground(new Color(224, 214, 167));
-                                    } else {
-                                        playerOneButtons[i][j].setBackground(new Color(192, 192, 192));
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void mouseExited(MouseEvent e) {
-                        for (int i = 0; i < 3; i++) {
-                            for (int j = 0; j < 3; j++) {
-                                if (e.getSource() == playerOneButtons[i][j]) {
-                                    if (playerOneTurn) {
-                                        playerOneButtons[i][j].setBackground(new Color(177, 13, 17));
-                                    } else {
-                                        playerOneButtons[i][j].setBackground(new Color(192, 192, 192));
                                     }
                                 }
                             }
@@ -232,57 +193,84 @@ public class Knucklebones {
 
                     }
                 });
-                playerTwoButtons[i][j].addMouseListener(new java.awt.event.MouseListener() {
-
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-
-                    }
-
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-
-                    }
-
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-
-                    }
-
-                    @Override
-                    public void mouseEntered(MouseEvent e) {
-                        for (int i = 0; i < 3; i++) {
-                            for (int j = 0; j < 3; j++) {
-                                if (e.getSource() == playerTwoButtons[i][j]) {
-                                    if (!playerOneTurn) {
-                                        playerTwoButtons[i][j].setBackground(new Color(224, 214, 167));
-                                    } else {
-                                        playerTwoButtons[i][j].setBackground(new Color(192, 192, 192));
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void mouseExited(MouseEvent e) {
-                        for (int i = 0; i < 3; i++) {
-                            for (int j = 0; j < 3; j++) {
-                                if (e.getSource() == playerTwoButtons[i][j]) {
-                                    if (!playerOneTurn) {
-                                        playerTwoButtons[i][j].setBackground(new Color(177, 13, 17));
-                                    } else {
-                                        playerTwoButtons[i][j].setBackground(new Color(192, 192, 192));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+               
             }
         }
         buttons.setVisible(true);
         buttons.updateUI();
+    }
+    
+    private void addMouseControl(JButton b, int player){
+        b.addMouseListener(new java.awt.event.MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        if (e.getSource() == b) {
+                            if ((playerOneTurn && player == 1) || (!playerOneTurn && player == 2)) {
+                                b.setBackground(new Color(224, 214, 167));
+                            } else {
+                                b.setBackground(new Color(192, 192, 192));
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        if (e.getSource() == b) {
+                            if ((playerOneTurn && player == 1) || (!playerOneTurn && player == 2)) {
+                                b.setBackground(new Color(177, 13, 17));
+                            } else {
+                                b.setBackground(new Color(192, 192, 192));
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    private void switchPlayers(JButton[][] playerButtons, JButton[][] opponentButtons){
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                playerButtons[x][y].setEnabled(false);
+                playerButtons[x][y].setBackground(new Color(192, 192, 192));
+                opponentButtons[x][y].setEnabled(true);
+                opponentButtons[x][y].setBackground(new Color(177, 13, 17));
+            }
+        }
+    }
+    
+    private void styleButton(JButton b, boolean firstTurn){
+        b.setForeground(Color.black);
+        b.setFont(new Font("Noto Mono", Font.BOLD, 50));
+        if (firstTurn) {
+            b.setBackground(new Color(177, 13, 17));
+        } else {
+            b.setEnabled(false);
+            b.setBackground(new Color(192, 192, 192));
+        }
+        b.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), BorderFactory.createBevelBorder(1)));
     }
 
     private void updateScoreBoard(){
