@@ -2,16 +2,16 @@ import javax.swing.*;
 import java.awt.*;
 
 public class WinnerPanel {
-    JFrame fr = new JFrame();
+    JFrame frame;
 
     public WinnerPanel(int player){
-        fr.setTitle("KNUCKLEBONES");
-        fr.setMinimumSize(new Dimension(500,200));
-        fr.setMaximumSize(new Dimension(500,200));
-        fr.getContentPane().setBackground(new Color(252,240,213));
-        fr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        fr.setLayout(new BorderLayout());
-        fr.setVisible(true);
+        frame = new JFrame();
+        frame.setTitle("KNUCKLEBONES");
+        frame.setMinimumSize(new Dimension(500,200));
+        frame.setMaximumSize(new Dimension(500,200));
+        frame.getContentPane().setBackground(new Color(252,240,213));
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
         JLabel winner = new JLabel();
         winner.setForeground(new Color(177, 13, 17));
         winner.setHorizontalAlignment(SwingConstants.CENTER);
@@ -24,10 +24,11 @@ public class WinnerPanel {
             winner.setText("TIE");
         }
         winner.setVisible(true);
-        fr.add(winner);
+        frame.add(winner);
     }
 
     public static void main(String[] args) {
         WinnerPanel wp = new WinnerPanel(1);
+        wp.frame.setVisible(true);
     }
 }

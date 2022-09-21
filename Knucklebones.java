@@ -106,6 +106,7 @@ public class Knucklebones {
                                     updateColumnScores();
                                     updateScoreBoard();
                                     switchPlayers(playerOneButtons, playerTwoButtons);
+                                    checkGameEnd(playerOneButtons);
                                 }
                             }
                         }
@@ -166,7 +167,7 @@ public class Knucklebones {
                                     updateColumnScores();
                                     updateScoreBoard();
                                     switchPlayers(playerTwoButtons,playerOneButtons);
-                                    checkGameEnd(playerOneButtons);
+                                    checkGameEnd(playerTwoButtons);
                                 }
                             }
                         }
@@ -278,7 +279,7 @@ public class Knucklebones {
     public int checkRules(int x, int y, int[] playerScore, int[] opponentScore, JButton[][] playerButtons, JButton[][] opponentButtons){
         int points = checkDuplicates(x, y, playerButtons, playerScore);
         //Check if any of the player's rolls are the same
-        //check if any if the player's rolls match the opposite player's
+        //check if any of the player's rolls match the opposite player's
         int count = 0;
         for (int yCord = 0; yCord < 3; yCord++){
             if (playerButtons[x][y].getText().equals(opponentButtons[yCord][y].getText())){
@@ -341,7 +342,7 @@ public class Knucklebones {
     }
 
     private void checkGameEnd(JButton[][] buttons){
-        int count = 1;
+        int count = 0;
         for (int x = 0; x < 3; x++){
             for (int y = 0; y < 3; y++){
                 if(!buttons[x][y].getText().equals("")){
@@ -357,12 +358,18 @@ public class Knucklebones {
     private void findWinner() {
         if (playerOneFinalScore > playerTwoFinalScore){
             WinnerPanel wp = new WinnerPanel(1);
+            wp.frame.setVisible(true);
+            fr.setVisible(false);
         } else if (playerOneFinalScore < playerTwoFinalScore){
             WinnerPanel wp = new WinnerPanel(2);
+            wp.frame.setVisible(true);
+            fr.setVisible(false);
         } else {
             WinnerPanel wp = new WinnerPanel(3);
+            wp.frame.setVisible(true);
+            fr.setVisible(false);
         }
-        fr.setVisible(false);
+
     }
 
 }
